@@ -1,6 +1,5 @@
-mod domain;
-
-// use crate::domain::npc::*;
+pub mod ports;
+pub mod domain;
 
 fn main() {
 
