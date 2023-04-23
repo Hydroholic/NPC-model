@@ -13,7 +13,7 @@ trait TimeGiver {
 
 struct NPC {
     name: &'static str,
-    time_giver: Option<Box<dyn TimeGiver>> //dyn Option<TimeGiver>
+    time_giver: Box<dyn TimeGiver>
 }
 
 impl NPC {
@@ -23,26 +23,13 @@ impl NPC {
     }
 
     pub fn give_mood(&self) -> Mood {
-        let time_state = match &self.time_giver {
-            Some(time_giver) => time_giver.give_time(),
-            None => panic!("Should not access time_giver")
-        };
+        let time_state = self.time_giver.give_time();
         if *time_state == TimeState::Morning {
             Mood::Angry
         }
         else {
             Mood::Fine
         }
-    }
-}
-
-struct TimeBidon{
-    time: TimeState
-}
-
-impl TimeGiver for TimeBidon{
-    fn give_time(&self) -> &TimeState {
-        &self.time
     }
 }
 
@@ -61,28 +48,50 @@ enum TimeState {
 mod tests {
     use super::*; //importer toutes les fonctions du fichier
 
+    struct TimeBidon{
+        time: TimeState
+    }
+    
+    impl TimeGiver for TimeBidon{
+        fn give_time(&self) -> &TimeState {
+            &self.time
+        }
+    }
+
+    fn get_default_time_giver() -> impl TimeGiver {
+        let default_time_state = TimeState::Morning;
+        let default_time_giver = TimeBidon { time: default_time_state };
+        return default_time_giver
+    }
+
+    fn get_default_npc() -> NPC {
+        let time_giver_box = Box::new(get_default_time_giver());
+        let npc = NPC { name: "Georges", time_giver: time_giver_box };
+        return npc
+    }
+
     #[test]
     fn test_npc_has_name() {
-        let npc: NPC = NPC { name: "Georges", time_giver: None};
+        let npc: NPC = get_default_npc();
         assert_eq!(npc.name, "Georges");
     }
 
     #[test]
     fn test_npc_greets_player() {
-        let npc: NPC = NPC { name: "Georges", time_giver: None };
+        let npc: NPC = get_default_npc();
         let player_name: String = String::from("Corentin");
         assert_eq!(npc.greet_player(&player_name), "Hello, Corentin! My name is Georges");
     }
 
     #[test]
     fn test_npc_is_ok() {
-        let npc: NPC = NPC { name: "Georges", time_giver: None };
+        let npc: NPC = get_default_npc();
         assert_eq!(npc.give_mood(), Mood::Fine);
     }
 
     #[test]
     fn test_npc_is_angry_morning() {
-        let npc: NPC = NPC { name: "Georges", time_giver: None };
+        let npc: NPC = get_default_npc();
         assert_eq!(npc.give_mood(), Mood::Angry);
     }
 }
