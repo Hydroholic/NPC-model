@@ -1,6 +1,6 @@
 mod domain;
 
-use crate::domain::npc::*;
+// use crate::domain::npc::*;
 
 fn main() {
 
