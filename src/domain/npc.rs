@@ -7,6 +7,7 @@
     }
 }*/
 
+
 trait TimeGiver {
     fn give_time(&self) -> &TimeState;
 }
@@ -24,11 +25,9 @@ impl NPC {
 
     pub fn give_mood(&self) -> Mood {
         let time_state = self.time_giver.give_time();
-        if *time_state == TimeState::Morning {
-            Mood::Angry
-        }
-        else {
-            Mood::Fine
+        match time_state {
+            TimeState::Morning => Mood::Angry,
+            _ => Mood::Fine,
         }
     }
 }
@@ -46,7 +45,7 @@ enum TimeState {
 
 #[cfg(test)]
 mod tests {
-    use super::*; //importer toutes les fonctions du fichier
+    use super::*;  // importer toutes les fonctions du fichier
 
     struct TimeBidon{
         time: TimeState
@@ -59,7 +58,7 @@ mod tests {
     }
 
     fn get_default_time_giver() -> impl TimeGiver {
-        let default_time_state = TimeState::Morning;
+        let default_time_state = TimeState::Night;
         let default_time_giver = TimeBidon { time: default_time_state };
         return default_time_giver
     }
@@ -91,7 +90,10 @@ mod tests {
 
     #[test]
     fn test_npc_is_angry_morning() {
-        let npc: NPC = get_default_npc();
+        let default_time_state = TimeState::Morning;
+        let default_time_giver = TimeBidon { time: default_time_state };
+        let time_giver_box = Box::new(default_time_giver);
+        let npc = NPC { name: "Georges", time_giver: time_giver_box };
         assert_eq!(npc.give_mood(), Mood::Angry);
     }
 }
