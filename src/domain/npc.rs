@@ -17,8 +17,9 @@ struct NPC {
 }
 
 impl NPC {
-    pub fn greet_player(&self, name: &String) -> String {
-        "Hello, ".to_owned() + name + "!"
+    pub fn greet_player(&self, name: &str) -> String {
+        let greeting = String::from("Hello, ");
+        greeting + name + "! My name is " + self.name
     }
 
     pub fn give_mood(&self) -> Mood {
@@ -62,26 +63,26 @@ mod tests {
 
     #[test]
     fn test_npc_has_name() {
-        let npc: NPC = NPC { name: "George", time_giver: None};
-        assert_eq!(npc.name, "George");
+        let npc: NPC = NPC { name: "Georges", time_giver: None};
+        assert_eq!(npc.name, "Georges");
     }
 
     #[test]
     fn test_npc_greets_player() {
-        let npc: NPC = NPC { name: "George", time_giver: None };
+        let npc: NPC = NPC { name: "Georges", time_giver: None };
         let player_name: String = String::from("Corentin");
-        assert_eq!(npc.greet_player(&player_name), "Hello, Corentin!");
+        assert_eq!(npc.greet_player(&player_name), "Hello, Corentin! My name is Georges");
     }
 
     #[test]
     fn test_npc_is_ok() {
-        let npc: NPC = NPC { name: "George", time_giver: None };
+        let npc: NPC = NPC { name: "Georges", time_giver: None };
         assert_eq!(npc.give_mood(), Mood::Fine);
     }
 
     #[test]
     fn test_npc_is_angry_morning() {
-        let npc: NPC = NPC { name: "George", time_giver: None };
+        let npc: NPC = NPC { name: "Georges", time_giver: None };
         assert_eq!(npc.give_mood(), Mood::Angry);
     }
 }
