@@ -12,7 +12,7 @@ trait TimeGiver {
 }
 
 struct NPC {
-    name: String,
+    name: &'static str,
     time_giver: Option<Box<dyn TimeGiver>> //dyn Option<TimeGiver>
 }
 
@@ -62,26 +62,26 @@ mod tests {
 
     #[test]
     fn test_npc_has_name() {
-        let npc: NPC = NPC { name: String::from("George"), time_giver: None};
+        let npc: NPC = NPC { name: "George", time_giver: None};
         assert_eq!(npc.name, "George");
     }
 
     #[test]
     fn test_npc_greets_player() {
-        let npc: NPC = NPC { name: String::from("George"), time_giver: None };
+        let npc: NPC = NPC { name: "George", time_giver: None };
         let player_name: String = String::from("Corentin");
         assert_eq!(npc.greet_player(&player_name), "Hello, Corentin!");
     }
 
     #[test]
     fn test_npc_is_ok() {
-        let npc: NPC = NPC { name: String::from("George"), time_giver: None };
+        let npc: NPC = NPC { name: "George", time_giver: None };
         assert_eq!(npc.give_mood(), Mood::Fine);
     }
 
     #[test]
     fn test_npc_is_angry_morning() {
-        let npc: NPC = NPC { name: String::from("George"), time_giver: None };
+        let npc: NPC = NPC { name: "George", time_giver: None };
         assert_eq!(npc.give_mood(), Mood::Angry);
     }
 }
