@@ -17,8 +17,9 @@ impl NPC {
         time_giver: impl TimeGiver + 'static
     ) -> Result<Self, NPCError> {
         let name = String::from(name);
+        let time_giver = Box::new(time_giver);
         match name.chars().all(|c| matches!(c, 'A'..='Z' | 'a'..='z')) {
-            true => Ok(NPC { name: name, time_giver: Box::new(time_giver) }),
+            true => Ok(NPC { name, time_giver }),
             false => Err(NPCError::CreationError)
         }
     }
