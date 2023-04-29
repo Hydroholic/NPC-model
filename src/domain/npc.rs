@@ -24,7 +24,6 @@ impl NPC {
     }
 
     pub fn greet_player(&self, name: &str) -> String {
-        let greeting = String::from("Hello, ");
         format!("Hello, {}! My name is {}", name, self.name)
     }
 
