@@ -3,16 +3,20 @@
 use crate::ports::time_giver::{TimeGiver, TimeState};
 
 
+pub struct NPCDialog {}
+
 pub struct NPC {
-    name: &'static str,
-    time_giver: Box<dyn TimeGiver>
+    name: String,
+    time_giver: Box<dyn TimeGiver>,
+    // state_of_mind: StateOfMind,
 }
 
 impl NPC {
     pub fn new(
-        name: &'static str,
+        name: &str,
         time_giver: impl TimeGiver + 'static
     ) -> Result<Self, NPCError> {
+        let name = String::from(name);
         match name.chars().all(|c| matches!(c, 'A'..='Z' | 'a'..='z')) {
             true => Ok(NPC { name: name, time_giver: Box::new(time_giver) }),
             false => Err(NPCError::CreationError)
@@ -21,7 +25,7 @@ impl NPC {
 
     pub fn greet_player(&self, name: &str) -> String {
         let greeting = String::from("Hello, ");
-        greeting + name + "! My name is " + self.name
+        format!("Hello, {}! My name is {}", name, self.name)
     }
 
     pub fn give_mood(&self) -> Mood {
@@ -32,8 +36,8 @@ impl NPC {
         }
     }
 
-    pub fn get_name(&self) -> &str {
-        self.name
+    pub fn get_name(&self) -> &String {
+        &self.name
     }
 }
 
@@ -60,6 +64,11 @@ pub enum Mood {
 #[derive(Debug, PartialEq)]
 pub enum NPCError {
     CreationError,
+}
+
+pub enum StateOfMind {
+    Optimistic,
+    Pessimistic,
 }
 
 
