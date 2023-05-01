@@ -9,19 +9,20 @@ pub struct NPCDialog {}
 pub struct InvalidNameError;
 
 #[derive(Debug, PartialEq)]
-pub struct Name { name: String }
+pub struct Name(String);
 
 impl Name {
     pub fn from(name: &str) -> Result<Name, InvalidNameError> {
         let name = name.to_string();
         match name.chars().all(|c| matches!(c, 'A'..='Z' | 'a'..='z')) {
-            true => Ok(Self { name }),
+            true => Ok(Self(name)),
             false => Err(InvalidNameError)
         }
     }
 
     pub fn to_string(&self) -> &String {
-        return &self.name
+        let Name(name) = self;
+        return name
     }
 }
 
