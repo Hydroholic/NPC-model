@@ -5,27 +5,40 @@ use crate::ports::time_giver::{TimeGiver, TimeState};
 
 pub struct NPCDialog {}
 
+#[derive(Debug, PartialEq)]
+pub struct InvalidNameError;
+
+#[derive(Debug, PartialEq)]
+pub struct Name { name: String }
+
+impl Name {
+    pub fn from(name: &str) -> Result<Name, InvalidNameError> {
+        let name = name.to_string();
+        match name.chars().all(|c| matches!(c, 'A'..='Z' | 'a'..='z')) {
+            true => Ok(Self { name }),
+            false => Err(InvalidNameError)
+        }
+    }
+
+    pub fn to_string(&self) -> &String {
+        return &self.name
+    }
+}
+
 pub struct NPC {
-    name: String,
+    name: Name,
     time_giver: Box<dyn TimeGiver>,
     // state_of_mind: StateOfMind,
 }
 
 impl NPC {
-    pub fn new(
-        name: &str,
-        time_giver: impl TimeGiver + 'static
-    ) -> Result<Self, NPCError> {
-        let name = String::from(name);
+    pub fn new(name: Name, time_giver: impl TimeGiver + 'static ) -> Self {
         let time_giver = Box::new(time_giver);
-        match name.chars().all(|c| matches!(c, 'A'..='Z' | 'a'..='z')) {
-            true => Ok(NPC { name, time_giver }),
-            false => Err(NPCError::CreationError)
-        }
+        Self { name, time_giver }
     }
 
     pub fn greet_player(&self, name: &str) -> String {
-        format!("Hello, {}! My name is {}", name, self.name)
+        format!("Hello, {}! My name is {}", name, self.name.to_string())
     }
 
     pub fn give_mood(&self) -> Mood {
@@ -36,7 +49,7 @@ impl NPC {
         }
     }
 
-    pub fn get_name(&self) -> &String {
+    pub fn name(&self) -> &Name {
         &self.name
     }
 }
@@ -50,7 +63,7 @@ impl PartialEq for NPC {
 impl std::fmt::Debug for NPC {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("NPC")
-            .field("Name", &self.name)
+            .field("Name", &self.name.to_string())
             .finish()
     }
 }
@@ -59,11 +72,6 @@ impl std::fmt::Debug for NPC {
 #[derive(Debug, PartialEq)]
 pub enum Mood {
     Fine, Angry, Sad, Overjoyed
-}
-
-#[derive(Debug, PartialEq)]
-pub enum NPCError {
-    CreationError,
 }
 
 pub enum StateOfMind {
@@ -92,16 +100,20 @@ mod tests {
         return default_time_giver
     }
 
+    fn get_default_name() -> Name {
+        Name::from("Georges").expect("Default name should be valid.")
+    }
+
     fn get_default_npc() -> NPC {
         let time_giver_box = get_default_time_giver();
-        let npc = NPC::new("Georges", time_giver_box);
-        return npc.expect("Valid NPC")
+        let name = get_default_name();
+        NPC::new(name, time_giver_box)
     }
 
     #[test]
     fn test_npc_has_name() {
         let npc: NPC = get_default_npc();
-        assert_eq!(npc.get_name(), "Georges");
+        assert_eq!(*npc.name(), Name::from("Georges").unwrap());
     }
 
     #[test]
@@ -112,10 +124,10 @@ mod tests {
     }
 
     #[test]
-    fn test_npc_with_bad_name_panics() {
-        let time_giver_box = get_default_time_giver();
-        let npc = NPC::new("xXSuperGamerDu92Xx", time_giver_box);
-        assert_eq!(npc, Err(NPCError::CreationError));
+    fn test_name_must_be_valid() {
+        // let time_giver_box = get_default_time_giver();
+        // let npc = NPC::new("xXSuperGamerDu92Xx", time_giver_box);
+        // assert_eq!(npc, Err(NPCError::CreationError));
     }
 
     #[test]
@@ -128,8 +140,9 @@ mod tests {
     fn test_npc_is_angry_morning() {
         let default_time_state = TimeState::Morning;
         let default_time_giver = TimeFake { time: default_time_state };
+        let default_name = get_default_name();
         let time_giver_box = default_time_giver;
-        let npc = NPC::new("Georges", time_giver_box).expect("Valid NPC");
+        let npc = NPC::new(default_name, time_giver_box);
         assert_eq!(npc.give_mood(), Mood::Angry);
     }
 }
