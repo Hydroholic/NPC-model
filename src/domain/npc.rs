@@ -124,10 +124,9 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn test_name_must_be_valid() {
-        // let time_giver_box = get_default_time_giver();
-        // let npc = NPC::new("xXSuperGamerDu92Xx", time_giver_box);
-        // assert_eq!(npc, Err(NPCError::CreationError));
+        Name::from("xXSuperGamerDu92Xx").unwrap();
     }
 
     #[test]
